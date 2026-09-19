@@ -70,6 +70,19 @@
     font-weight:950;padding:11px 14px;cursor:pointer;
   }
   .status{font-size:13px;color:var(--muted);font-weight:800;min-height:18px}
+  .ub-chip{display:flex;align-items:center;gap:9px;font-weight:950}
+  .ub-avatar{
+    width:40px;height:40px;border-radius:50%;border:1px solid #c7dced;background:#fff;
+    display:grid;place-items:center;font-size:22px;cursor:pointer;
+  }
+  .ub-name{font-size:18px}
+  .ub-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .ub-btn,.modal-btn{
+    border:1px solid #bdd3e6;border-radius:8px;background:#fff;color:var(--ink);
+    font-weight:950;padding:10px 13px;cursor:pointer;
+  }
+  .ub-btn.solid,.modal-btn{border-color:var(--ink);background:var(--ink);color:#fff}
+  .signin-prompt{font-weight:900;color:var(--muted)}
   main{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:start}
   .games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
   .card{
@@ -123,6 +136,30 @@
   .note{color:var(--muted);font-weight:700;line-height:1.45;margin:0}
   .locked{filter:grayscale(.25);opacity:.76}
   .locked .play{background:#8699aa;box-shadow:none}
+  .modal{
+    position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;
+    padding:18px;background:rgba(23,50,77,.42);
+  }
+  .modal.show{display:flex}
+  .sheet{
+    width:min(440px,100%);max-height:min(760px,calc(100vh - 36px));overflow:auto;
+    background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:20px;
+  }
+  .sheet h2{margin:0 0 8px;font-size:28px;line-height:1;font-weight:950}
+  .field-lbl{margin:14px 0 7px;font-size:12px;font-weight:950;letter-spacing:.08em;color:var(--muted)}
+  .sheet input{
+    width:100%;border:1px solid #bdd3e6;border-radius:8px;padding:12px;
+    font-weight:850;color:var(--ink);background:#fff;
+  }
+  .modal-btn{width:100%;margin-top:10px}
+  .modal-btn.ghost{background:#fff;color:var(--ink);border-color:#bdd3e6}
+  .modal-err{min-height:20px;margin-top:9px;color:#c23a3a;font-weight:850;font-size:13px}
+  .avatars{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;max-height:230px;overflow:auto;padding:2px}
+  .av{
+    min-height:42px;border:1px solid #c7dced;border-radius:8px;background:#f9fcff;
+    display:grid;place-items:center;font-size:24px;cursor:pointer;
+  }
+  .av.sel{border-color:var(--blue);box-shadow:0 0 0 3px rgba(46,125,215,.16);background:#eef6fd}
   @media(max-width:880px){
     header{grid-template-columns:1fr}
     main{grid-template-columns:1fr}
@@ -147,14 +184,7 @@
         <p class="sub">Week 3 spelling practice with two quick games.</p>
       </div>
     </div>
-    <section class="player" aria-label="Player sign in">
-      <div class="player-row">
-        <input id="name" maxlength="18" placeholder="Type your name">
-        <button class="save" id="save">Save</button>
-      </div>
-      <div class="avatar-pick" id="avatars"></div>
-      <div class="status" id="status"></div>
-    </section>
+    <section class="player" id="userbar" aria-label="Player sign in"></section>
   </header>
 
   <main>
@@ -203,11 +233,55 @@
       <section class="panel">
         <h2>My Records</h2>
         <div class="records" id="records">
-          <p class="note">Save your name to see your best scores here.</p>
+          <p class="note">Sign in to see your best scores here.</p>
         </div>
       </section>
     </aside>
   </main>
+</div>
+
+<div class="modal" id="signinModal">
+  <div class="sheet">
+    <h2 id="siTitle">Who's playing?</h2>
+    <p class="note" id="siNote">Are you new here, or coming back?</p>
+
+    <div id="siChoose">
+      <button class="modal-btn" id="goNew">I'm New - Create Account</button>
+      <button class="modal-btn ghost" id="goReturning">I've Played Before - Log In</button>
+    </div>
+
+    <div id="siNew" style="display:none;">
+      <div class="field-lbl">CHOOSE A USERNAME</div>
+      <input id="newName" maxlength="16" placeholder="e.g. Wilson" autocomplete="off">
+      <div class="field-lbl">CREATE A PASSWORD</div>
+      <input id="newPass" type="password" maxlength="24" placeholder="Secret word" autocomplete="new-password">
+      <div class="field-lbl">PICK YOUR HERO</div>
+      <div class="avatars" id="avatarGrid"></div>
+      <div class="modal-err" id="newErr"></div>
+      <button class="modal-btn" id="createBtn">CREATE & ENTER</button>
+      <button class="modal-btn ghost" id="backNew">Back</button>
+    </div>
+
+    <div id="siReturn" style="display:none;">
+      <div class="field-lbl">USERNAME</div>
+      <input id="logName" maxlength="16" placeholder="Your username" autocomplete="off">
+      <div class="field-lbl">PASSWORD</div>
+      <input id="logPass" type="password" maxlength="24" placeholder="Your password" autocomplete="current-password">
+      <div class="modal-err" id="logErr"></div>
+      <button class="modal-btn" id="loginBtn">LOG IN</button>
+      <button class="modal-btn ghost" id="backReturn">Back</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="avatarModal">
+  <div class="sheet">
+    <h2>Pick your hero</h2>
+    <p class="note">Choose a new avatar. It saves to your account.</p>
+    <div class="avatars" id="avatarPickGrid"></div>
+    <div class="modal-err" id="avErr"></div>
+    <button class="modal-btn ghost" id="closeAvatar">CLOSE</button>
+  </div>
 </div>
 
 <script>
@@ -215,67 +289,72 @@
   "use strict";
   var SB_URL='https://wpohvsjkrskhlrayaubp.supabase.co';
   var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indwb2h2c2prcnNraGxyYXlhdWJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMDEzOTcsImV4cCI6MjA5Njg3NzM5N30.Xi07ayGB5CykR-_7QX-b8UsUmMmTbGIlYpctXYgW9JI';
+  var FN=SB_URL+'/functions/v1/';
   var words=['exam','exit','exact','exist','exert','exempt','exhaust','example','exotic','examine'];
   var games=[
     {id:'y3-wordhunt',name:'WORD HUNT BEST'},
     {id:'y3-wordcross',name:'WORD CROSS BEST'}
   ];
-  var avatars=['⭐','🚀','🌈','⚽','🎮','🦊','🐼','🦁','🐬','🧠'];
-  var chosen='⭐';
+  var AVATARS=[
+    '⭐','🚀','🌈','⚽','🎮','🎨','🏆','💎','⚡','🌟','🔥','❄️',
+    '🦁','🐯','🐻','🐼','🦊','🐶','🐱','🐰','🐨','🐸','🦉','🦄',
+    '🐲','🐉','🦖','🦕','🐙','🦈','🐳','🦋','🐝','🦜','🦩','🦚',
+    '🍕','🍔','🍩','🍦','🍓','🍉','🍪','🧁','🍭','🍫','🌍','🌙'
+  ];
+  var selectedAvatar='⭐';
   function $(id){return document.getElementById(id);}
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  function sbH(){return {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};}
+  function sbTok(){try{return localStorage.getItem('sb_token')||SB_KEY;}catch(e){return SB_KEY;}}
+  function setTok(t){try{localStorage.setItem('sb_token',t);}catch(e){}}
+  function clearTok(){try{localStorage.removeItem('sb_token');}catch(e){}}
+  function sbH(){return {'apikey':SB_KEY,'Authorization':'Bearer '+sbTok(),'Content-Type':'application/json'};}
   function currentPlayer(){try{return JSON.parse(localStorage.getItem('rna_player')||'null');}catch(e){return null;}}
+  function setPlayer(p){localStorage.setItem('rna_player',JSON.stringify(p));}
+  function clearPlayer(){localStorage.removeItem('rna_player');clearTok();}
+  async function authCall(action,name,pass,avatar){
+    var r=await fetch(FN+'login',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:action,name:name,password:pass,avatar:avatar,app:'arcade'})});
+    var d=null;try{d=await r.json();}catch(e){}
+    if(!r.ok||!d||!d.token)throw new Error((d&&d.error)||'Could not sign in.');
+    setTok(d.token);
+    return d.player;
+  }
   function renderWords(){
     $('wordList').innerHTML=words.map(function(w){return '<span>'+esc(w)+'</span>';}).join('');
-  }
-  function renderAvatars(){
-    $('avatars').innerHTML=avatars.map(function(a){
-      return '<button class="avatar'+(a===chosen?' on':'')+'" data-a="'+a+'" type="button">'+a+'</button>';
-    }).join('');
-    Array.prototype.forEach.call(document.querySelectorAll('.avatar'),function(btn){
-      btn.addEventListener('click',function(){
-        chosen=btn.getAttribute('data-a');
-        renderAvatars();
-        savePlayer(false);
-      });
-    });
   }
   function setLocked(locked){
     $('huntCard').classList.toggle('locked',locked);
     $('crossCard').classList.toggle('locked',locked);
   }
-  function savePlayer(showMessage){
-    var name=$('name').value.trim().replace(/\s+/g,' ');
-    if(!name){
-      localStorage.removeItem('rna_player');
-      $('status').textContent='Type your name before playing.';
+  function renderUserBar(){
+    var p=currentPlayer();
+    if(p){
+      $('userbar').innerHTML=
+        '<div class="ub-chip"><button class="ub-avatar" id="avatarBtn" title="Change avatar">'+esc(p.avatar||'⭐')+'</button>'+
+        '<span class="ub-name">'+esc(p.name)+'</span></div>'+
+        '<div class="ub-actions"><button class="ub-btn solid" id="refreshRecords">My Records</button>'+
+        '<button class="ub-btn" id="switchBtn">Switch</button></div>';
+      $('avatarBtn').addEventListener('click',openAvatarPicker);
+      $('refreshRecords').addEventListener('click',renderRecords);
+      $('switchBtn').addEventListener('click',function(){clearPlayer();renderUserBar();renderRecords();openSignin();});
+      setLocked(false);
+    }else{
+      $('userbar').innerHTML='<span class="signin-prompt">Sign in to save your scores</span>'+
+        '<button class="ub-btn solid" id="signinBtn">Sign In</button>';
+      $('signinBtn').addEventListener('click',openSignin);
       setLocked(true);
-      renderRecords();
-      return;
     }
-    localStorage.setItem('rna_player',JSON.stringify({name:name,avatar:chosen}));
-    $('status').textContent=showMessage?'Saved. Choose a game to play.':'Signed in as '+name+'.';
-    setLocked(false);
-    upsertPlayer(name,chosen);
-    renderRecords();
-  }
-  async function upsertPlayer(name,avatar){
-    try{
-      var h=sbH();h.Prefer='resolution=merge-duplicates,return=minimal';
-      await fetch(SB_URL+'/rest/v1/players?on_conflict=name',{method:'POST',headers:h,body:JSON.stringify({name:name,avatar:avatar})});
-    }catch(e){}
   }
   async function renderRecords(){
     var p=currentPlayer();
     if(!p||!p.name){
-      $('records').innerHTML='<p class="note">Save your name to see your best scores here.</p>';
+      $('records').innerHTML='<p class="note">Sign in to see your best scores here.</p>';
       return;
     }
     $('records').innerHTML='<p class="note">Loading your scores...</p>';
     try{
       var filters=games.map(function(g){return 'game.eq.'+g.id;}).join(',');
-      var url=SB_URL+'/rest/v1/scores?select=game,score&name=eq.'+encodeURIComponent(p.name)+'&or=('+filters+')&limit=1000';
+      var url=SB_URL+'/rest/v1/scores?select=game,score&player=eq.'+encodeURIComponent(p.name)+'&or=('+filters+')&limit=1000';
       var r=await fetch(url,{headers:sbH()});
       if(!r.ok)throw new Error('records');
       var rows=await r.json();
@@ -288,19 +367,107 @@
       $('records').innerHTML='<p class="note">Scores will appear here after a game is saved.</p>';
     }
   }
+  function buildAvatars(){
+    var g=$('avatarGrid');g.innerHTML='';
+    AVATARS.forEach(function(a){
+      var d=document.createElement('div');
+      d.className='av'+(a===selectedAvatar?' sel':'');
+      d.textContent=a;
+      d.addEventListener('click',function(){
+        selectedAvatar=a;
+        g.querySelectorAll('.av').forEach(function(x){x.classList.remove('sel');});
+        d.classList.add('sel');
+      });
+      g.appendChild(d);
+    });
+  }
+  function showMode(mode){
+    $('siChoose').style.display=mode==='choose'?'block':'none';
+    $('siNew').style.display=mode==='new'?'block':'none';
+    $('siReturn').style.display=mode==='return'?'block':'none';
+    if(mode==='choose'){$('siTitle').textContent="Who's playing?";$('siNote').textContent='Are you new here, or coming back?';}
+    if(mode==='new'){$('siTitle').textContent='Create your account';$('siNote').textContent='Pick a username, a password, and a hero.';buildAvatars();}
+    if(mode==='return'){$('siTitle').textContent='Welcome back!';$('siNote').textContent='Enter your username and password.';}
+  }
+  function openSignin(){
+    selectedAvatar='⭐';
+    $('newName').value='';$('newPass').value='';$('newErr').textContent='';
+    $('logName').value='';$('logPass').value='';$('logErr').textContent='';
+    showMode('choose');
+    $('signinModal').classList.add('show');
+  }
+  $('goNew').addEventListener('click',function(){showMode('new');setTimeout(function(){$('newName').focus();},100);});
+  $('goReturning').addEventListener('click',function(){showMode('return');setTimeout(function(){$('logName').focus();},100);});
+  $('backNew').addEventListener('click',function(){showMode('choose');});
+  $('backReturn').addEventListener('click',function(){showMode('choose');});
+  $('createBtn').addEventListener('click',async function(){
+    var name=$('newName').value.trim().slice(0,16);
+    var pass=$('newPass').value;
+    if(!name){$('newErr').textContent='Please choose a username.';return;}
+    if(pass.length<8){$('newErr').textContent='Password must be at least 8 characters.';return;}
+    $('newErr').textContent='';$('createBtn').textContent='Creating...';$('createBtn').disabled=true;
+    try{
+      var p=await authCall('signup',name,pass,selectedAvatar);
+      setPlayer({name:p.name,avatar:p.avatar||selectedAvatar});
+      $('signinModal').classList.remove('show');
+      renderUserBar();renderRecords();
+    }catch(e){$('newErr').textContent=e.message||'Connection problem. Try again.';}
+    $('createBtn').textContent='CREATE & ENTER';$('createBtn').disabled=false;
+  });
+  $('newPass').addEventListener('keydown',function(e){if(e.key==='Enter')$('createBtn').click();});
+  $('loginBtn').addEventListener('click',async function(){
+    var name=$('logName').value.trim().slice(0,16);
+    var pass=$('logPass').value;
+    if(!name||!pass){$('logErr').textContent='Enter your username and password.';return;}
+    $('logErr').textContent='';$('loginBtn').textContent='Logging in...';$('loginBtn').disabled=true;
+    try{
+      var p=await authCall('login',name,pass);
+      setPlayer({name:p.name,avatar:p.avatar||'⭐'});
+      $('signinModal').classList.remove('show');
+      renderUserBar();renderRecords();
+    }catch(e){$('logErr').textContent=e.message||'Connection problem. Try again.';}
+    $('loginBtn').textContent='LOG IN';$('loginBtn').disabled=false;
+  });
+  $('logPass').addEventListener('keydown',function(e){if(e.key==='Enter')$('loginBtn').click();});
+  function openAvatarPicker(){
+    var p=currentPlayer();if(!p)return;
+    $('avErr').textContent='';
+    var g=$('avatarPickGrid');g.innerHTML='';
+    AVATARS.forEach(function(a){
+      var d=document.createElement('div');
+      d.className='av'+(a===(p.avatar||'⭐')?' sel':'');
+      d.textContent=a;
+      d.addEventListener('click',function(){saveAvatar(a,d);});
+      g.appendChild(d);
+    });
+    $('avatarModal').classList.add('show');
+  }
+  async function saveAvatar(a,el){
+    var p=currentPlayer();if(!p)return;
+    if(el){$('avatarPickGrid').querySelectorAll('.av').forEach(function(x){x.classList.remove('sel');});el.classList.add('sel');}
+    $('avErr').textContent='Saving...';
+    try{
+      var h=sbH();h.Prefer='return=minimal';
+      var r=await fetch(SB_URL+'/rest/v1/players?name=eq.'+encodeURIComponent(p.name),
+        {method:'PATCH',headers:h,body:JSON.stringify({avatar:a})});
+      if(!r.ok)throw new Error('Could not save avatar.');
+      setPlayer({name:p.name,avatar:a});
+      renderUserBar();
+      $('avatarModal').classList.remove('show');
+    }catch(e){$('avErr').textContent=e.message||'Could not save avatar.';}
+  }
+  $('closeAvatar').addEventListener('click',function(){$('avatarModal').classList.remove('show');});
+  [$('signinModal'),$('avatarModal')].forEach(function(m){
+    m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('show');});
+  });
   function boot(){
     renderWords();
-    var p=currentPlayer();
-    if(p&&p.name){$('name').value=p.name;chosen=p.avatar||chosen;$('status').textContent='Signed in as '+p.name+'.';setLocked(false);}
-    else{$('status').textContent='Type your name before playing.';setLocked(true);}
-    renderAvatars();
+    renderUserBar();
     renderRecords();
   }
-  $('save').addEventListener('click',function(){savePlayer(true);});
-  $('name').addEventListener('keydown',function(e){if(e.key==='Enter')savePlayer(true);});
   Array.prototype.forEach.call(document.querySelectorAll('.card'),function(card){
     card.addEventListener('click',function(e){
-      if(!currentPlayer()){e.preventDefault();$('name').focus();$('status').textContent='Save your name first, then play.';}
+      if(!currentPlayer()){e.preventDefault();openSignin();}
     });
   });
   boot();
