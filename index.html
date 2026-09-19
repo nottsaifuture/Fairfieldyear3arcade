@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Year 3 Word Arcade</title>
+<style>
+  :root{
+    --bg:#f7fbff;
+    --ink:#17324d;
+    --muted:#5d7286;
+    --line:#d7e7f4;
+    --blue:#2e7dd7;
+    --green:#13a36f;
+    --yellow:#f0b429;
+    --pink:#e9568d;
+    --panel:#ffffff;
+    --shadow:0 18px 44px rgba(23,50,77,.14);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 14% 10%, rgba(46,125,215,.18), transparent 24rem),
+      radial-gradient(circle at 86% 18%, rgba(233,86,141,.15), transparent 22rem),
+      linear-gradient(180deg,#ffffff 0%,var(--bg) 58%,#eef7ff 100%);
+  }
+  a{color:inherit;text-decoration:none}
+  button,input{font:inherit}
+  .shell{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:22px 0 36px}
+  header{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;padding:10px 0 22px}
+  .brand{display:flex;align-items:center;gap:14px;min-width:0}
+  .logo{
+    width:54px;height:54px;border-radius:14px;
+    display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--blue),#69c2ff);
+    color:#fff;font-size:28px;font-weight:900;
+    box-shadow:0 12px 30px rgba(46,125,215,.28);
+  }
+  h1{margin:0;font-size:clamp(30px,5vw,58px);line-height:.94;letter-spacing:0;font-weight:950}
+  .sub{margin:8px 0 0;color:var(--muted);font-weight:700;font-size:clamp(14px,2vw,17px)}
+  .player{
+    background:rgba(255,255,255,.86);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    border-radius:8px;
+    padding:12px;
+    display:grid;
+    gap:10px;
+    min-width:min(360px,100%);
+  }
+  .player-row{display:flex;gap:8px;align-items:center}
+  .player input{
+    min-width:0;flex:1;
+    border:1px solid #bdd3e6;border-radius:8px;
+    padding:11px 12px;font-weight:800;color:var(--ink);background:#fff;
+  }
+  .avatar-pick{display:flex;gap:6px;flex-wrap:wrap}
+  .avatar{
+    width:36px;height:36px;border:1px solid #c7dced;border-radius:50%;
+    background:#fff;display:grid;place-items:center;cursor:pointer;
+    transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;
+  }
+  .avatar.on{border-color:var(--blue);box-shadow:0 0 0 3px rgba(46,125,215,.18);transform:translateY(-1px)}
+  .save{
+    border:0;border-radius:8px;background:var(--ink);color:#fff;
+    font-weight:950;padding:11px 14px;cursor:pointer;
+  }
+  .status{font-size:13px;color:var(--muted);font-weight:800;min-height:18px}
+  main{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:start}
+  .games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .card{
+    min-height:360px;border-radius:8px;overflow:hidden;position:relative;
+    background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);
+    display:flex;flex-direction:column;
+  }
+  .art{height:170px;position:relative;overflow:hidden;display:grid;place-items:center}
+  .hunt .art{background:linear-gradient(135deg,#dff4ff,#eaf7d7)}
+  .cross .art{background:linear-gradient(135deg,#fff0cf,#ffe1ed)}
+  .word-grid{display:grid;grid-template-columns:repeat(6,28px);gap:5px;transform:rotate(-6deg)}
+  .word-grid span{
+    width:28px;height:28px;border-radius:6px;display:grid;place-items:center;
+    background:#fff;color:var(--blue);font-weight:950;box-shadow:0 6px 12px rgba(46,125,215,.12);
+  }
+  .cross-grid{display:grid;grid-template-columns:repeat(7,26px);gap:4px;transform:rotate(5deg)}
+  .cross-grid span{
+    width:26px;height:26px;border-radius:5px;background:#fff;
+    display:grid;place-items:center;font-weight:950;color:var(--pink);
+    box-shadow:0 6px 12px rgba(233,86,141,.12);
+  }
+  .cross-grid span.blank{background:transparent;box-shadow:none}
+  .body{padding:18px;display:flex;flex-direction:column;gap:12px;flex:1}
+  .tag{font-size:12px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .title{font-size:30px;line-height:1;font-weight:950}
+  .desc{color:#4f667c;font-weight:700;line-height:1.45;margin:0;flex:1}
+  .play{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    min-height:46px;border-radius:8px;color:#fff;font-weight:950;
+    background:var(--blue);box-shadow:0 10px 22px rgba(46,125,215,.24);
+  }
+  .cross .play{background:var(--pink);box-shadow:0 10px 22px rgba(233,86,141,.22)}
+  .side{display:grid;gap:16px}
+  .panel{
+    background:rgba(255,255,255,.88);border:1px solid var(--line);
+    border-radius:8px;box-shadow:var(--shadow);padding:18px;
+  }
+  .panel h2{margin:0 0 12px;font-size:20px;line-height:1;font-weight:950}
+  .words{display:flex;flex-wrap:wrap;gap:7px}
+  .words span{
+    background:#eef6fd;border:1px solid #d2e5f5;border-radius:999px;
+    color:#244865;font-weight:900;font-size:13px;padding:7px 10px;
+  }
+  .records{display:grid;gap:10px}
+  .record{
+    display:flex;justify-content:space-between;gap:10px;align-items:center;
+    border:1px solid #dbe9f4;border-radius:8px;background:#fff;padding:12px;
+  }
+  .record b{font-size:15px}
+  .record span{font-weight:950;color:var(--green)}
+  .note{color:var(--muted);font-weight:700;line-height:1.45;margin:0}
+  .locked{filter:grayscale(.25);opacity:.76}
+  .locked .play{background:#8699aa;box-shadow:none}
+  @media(max-width:880px){
+    header{grid-template-columns:1fr}
+    main{grid-template-columns:1fr}
+  }
+  @media(max-width:620px){
+    .shell{width:min(100% - 22px,1120px);padding-top:14px}
+    .games{grid-template-columns:1fr}
+    .card{min-height:0}
+    .art{height:150px}
+    .player-row{align-items:stretch}
+    .save{padding-left:11px;padding-right:11px}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="brand">
+      <div class="logo">Y3</div>
+      <div>
+        <h1>Year 3<br>Word Arcade</h1>
+        <p class="sub">Week 3 spelling practice with two quick games.</p>
+      </div>
+    </div>
+    <section class="player" aria-label="Player sign in">
+      <div class="player-row">
+        <input id="name" maxlength="18" placeholder="Type your name">
+        <button class="save" id="save">Save</button>
+      </div>
+      <div class="avatar-pick" id="avatars"></div>
+      <div class="status" id="status"></div>
+    </section>
+  </header>
+
+  <main>
+    <section class="games" aria-label="Games">
+      <a class="card hunt" id="huntCard" href="word-hunt.html">
+        <div class="art" aria-hidden="true">
+          <div class="word-grid">
+            <span>E</span><span>X</span><span>A</span><span>M</span><span>Q</span><span>L</span>
+            <span>E</span><span>X</span><span>I</span><span>T</span><span>O</span><span>Y</span>
+            <span>E</span><span>X</span><span>A</span><span>C</span><span>T</span><span>E</span>
+            <span>E</span><span>X</span><span>I</span><span>S</span><span>T</span><span>P</span>
+          </div>
+        </div>
+        <div class="body">
+          <div class="tag">Word search</div>
+          <div class="title">Word Hunt</div>
+          <p class="desc">Find this week&apos;s spelling words hidden across, down and diagonally.</p>
+          <span class="play">Play Word Hunt</span>
+        </div>
+      </a>
+
+      <a class="card cross" id="crossCard" href="word-cross.html">
+        <div class="art" aria-hidden="true">
+          <div class="cross-grid">
+            <span>E</span><span>X</span><span>A</span><span>M</span><span>P</span><span>L</span><span>E</span>
+            <span class="blank"></span><span class="blank"></span><span>X</span><span class="blank"></span><span class="blank"></span><span class="blank"></span><span>X</span>
+            <span>E</span><span>X</span><span>A</span><span>C</span><span>T</span><span class="blank"></span><span>I</span>
+            <span class="blank"></span><span class="blank"></span><span>M</span><span class="blank"></span><span class="blank"></span><span class="blank"></span><span>T</span>
+            <span>E</span><span>X</span><span>I</span><span>S</span><span>T</span><span class="blank"></span><span class="blank"></span>
+          </div>
+        </div>
+        <div class="body">
+          <div class="tag">Crossword</div>
+          <div class="title">Word Cross</div>
+          <p class="desc">Use the meanings and word bank to complete a crossword from the same list.</p>
+          <span class="play">Play Word Cross</span>
+        </div>
+      </a>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <h2>Week 3 Words</h2>
+        <div class="words" id="wordList"></div>
+      </section>
+      <section class="panel">
+        <h2>My Records</h2>
+        <div class="records" id="records">
+          <p class="note">Save your name to see your best scores here.</p>
+        </div>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SB_URL='https://wpohvsjkrskhlrayaubp.supabase.co';
+  var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indwb2h2c2prcnNraGxyYXlhdWJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMDEzOTcsImV4cCI6MjA5Njg3NzM5N30.Xi07ayGB5CykR-_7QX-b8UsUmMmTbGIlYpctXYgW9JI';
+  var words=['exam','exit','exact','exist','exert','exempt','exhaust','example','exotic','examine'];
+  var games=[
+    {id:'y3-wordhunt',name:'WORD HUNT BEST'},
+    {id:'y3-wordcross',name:'WORD CROSS BEST'}
+  ];
+  var avatars=['⭐','🚀','🌈','⚽','🎮','🦊','🐼','🦁','🐬','🧠'];
+  var chosen='⭐';
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function sbH(){return {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};}
+  function currentPlayer(){try{return JSON.parse(localStorage.getItem('rna_player')||'null');}catch(e){return null;}}
+  function renderWords(){
+    $('wordList').innerHTML=words.map(function(w){return '<span>'+esc(w)+'</span>';}).join('');
+  }
+  function renderAvatars(){
+    $('avatars').innerHTML=avatars.map(function(a){
+      return '<button class="avatar'+(a===chosen?' on':'')+'" data-a="'+a+'" type="button">'+a+'</button>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('.avatar'),function(btn){
+      btn.addEventListener('click',function(){
+        chosen=btn.getAttribute('data-a');
+        renderAvatars();
+        savePlayer(false);
+      });
+    });
+  }
+  function setLocked(locked){
+    $('huntCard').classList.toggle('locked',locked);
+    $('crossCard').classList.toggle('locked',locked);
+  }
+  function savePlayer(showMessage){
+    var name=$('name').value.trim().replace(/\s+/g,' ');
+    if(!name){
+      localStorage.removeItem('rna_player');
+      $('status').textContent='Type your name before playing.';
+      setLocked(true);
+      renderRecords();
+      return;
+    }
+    localStorage.setItem('rna_player',JSON.stringify({name:name,avatar:chosen}));
+    $('status').textContent=showMessage?'Saved. Choose a game to play.':'Signed in as '+name+'.';
+    setLocked(false);
+    upsertPlayer(name,chosen);
+    renderRecords();
+  }
+  async function upsertPlayer(name,avatar){
+    try{
+      var h=sbH();h.Prefer='resolution=merge-duplicates,return=minimal';
+      await fetch(SB_URL+'/rest/v1/players?on_conflict=name',{method:'POST',headers:h,body:JSON.stringify({name:name,avatar:avatar})});
+    }catch(e){}
+  }
+  async function renderRecords(){
+    var p=currentPlayer();
+    if(!p||!p.name){
+      $('records').innerHTML='<p class="note">Save your name to see your best scores here.</p>';
+      return;
+    }
+    $('records').innerHTML='<p class="note">Loading your scores...</p>';
+    try{
+      var filters=games.map(function(g){return 'game.eq.'+g.id;}).join(',');
+      var url=SB_URL+'/rest/v1/scores?select=game,score&name=eq.'+encodeURIComponent(p.name)+'&or=('+filters+')&limit=1000';
+      var r=await fetch(url,{headers:sbH()});
+      if(!r.ok)throw new Error('records');
+      var rows=await r.json();
+      $('records').innerHTML=games.map(function(g){
+        var best=0;
+        rows.forEach(function(x){if(x.game===g.id&&Number(x.score)>best)best=Number(x.score);});
+        return '<div class="record"><b>'+g.name+'</b><span>'+(best||'Not played')+'</span></div>';
+      }).join('');
+    }catch(e){
+      $('records').innerHTML='<p class="note">Scores will appear here after a game is saved.</p>';
+    }
+  }
+  function boot(){
+    renderWords();
+    var p=currentPlayer();
+    if(p&&p.name){$('name').value=p.name;chosen=p.avatar||chosen;$('status').textContent='Signed in as '+p.name+'.';setLocked(false);}
+    else{$('status').textContent='Type your name before playing.';setLocked(true);}
+    renderAvatars();
+    renderRecords();
+  }
+  $('save').addEventListener('click',function(){savePlayer(true);});
+  $('name').addEventListener('keydown',function(e){if(e.key==='Enter')savePlayer(true);});
+  Array.prototype.forEach.call(document.querySelectorAll('.card'),function(card){
+    card.addEventListener('click',function(e){
+      if(!currentPlayer()){e.preventDefault();$('name').focus();$('status').textContent='Save your name first, then play.';}
+    });
+  });
+  boot();
+})();
+</script>
+</body>
+</html>
