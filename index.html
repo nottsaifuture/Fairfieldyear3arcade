@@ -181,7 +181,7 @@
       <div class="logo">Y3</div>
       <div>
         <h1>Year 3<br>Word Arcade</h1>
-        <p class="sub">Week 3 spelling practice with two quick games.</p>
+        <p class="sub" id="weekSub">Weekly spelling practice with two quick games.</p>
       </div>
     </div>
     <section class="player" id="userbar" aria-label="Player sign in"></section>
@@ -189,7 +189,7 @@
 
   <main>
     <section class="games" aria-label="Games">
-      <a class="card hunt" id="huntCard" href="word-hunt.html?v=20260914">
+      <a class="card hunt" id="huntCard" href="word-hunt.html?v=20260928">
         <div class="art" aria-hidden="true">
           <div class="word-grid">
             <span>E</span><span>X</span><span>A</span><span>M</span><span>Q</span><span>L</span>
@@ -206,7 +206,7 @@
         </div>
       </a>
 
-      <a class="card cross" id="crossCard" href="word-cross.html?v=20260914">
+      <a class="card cross" id="crossCard" href="word-cross.html?v=20260928">
         <div class="art" aria-hidden="true">
           <div class="cross-grid">
             <span>E</span><span>X</span><span>A</span><span>M</span><span>P</span><span>L</span><span>E</span>
@@ -227,7 +227,7 @@
 
     <aside class="side">
       <section class="panel">
-        <h2>Week 3 Words</h2>
+        <h2 id="weekWordsTitle">Weekly Words</h2>
         <div class="words" id="wordList"></div>
       </section>
       <section class="panel">
@@ -290,7 +290,11 @@
   var SB_URL='https://wpohvsjkrskhlrayaubp.supabase.co';
   var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indwb2h2c2prcnNraGxyYXlhdWJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMDEzOTcsImV4cCI6MjA5Njg3NzM5N30.Xi07ayGB5CykR-_7QX-b8UsUmMmTbGIlYpctXYgW9JI';
   var FN=SB_URL+'/functions/v1/';
-  var words=['exam','exit','exact','exist','exert','exempt','exhaust','example','exotic','examine'];
+  var week4Start=new Date('2026-09-28T00:00:00');
+  var isWeek4=new Date()>=week4Start;
+  var words=isWeek4
+    ? ['shone','type','glove','route','become','believe','meanwhile','minute','earthquake','envelope']
+    : ['exam','exit','exact','exist','exert','exempt','exhaust','example','exotic','examine'];
   var games=[
     {id:'y3-wordhunt',name:'WORD HUNT BEST'},
     {id:'y3-wordcross',name:'WORD CROSS BEST'}
@@ -320,6 +324,8 @@
     return d.player;
   }
   function renderWords(){
+    $('weekSub').textContent=(isWeek4?'Week 4':'Week 3')+' spelling practice with two quick games.';
+    $('weekWordsTitle').textContent=(isWeek4?'Week 4':'Week 3')+' Words';
     $('wordList').innerHTML=words.map(function(w){return '<span>'+esc(w)+'</span>';}).join('');
   }
   function setLocked(locked){
