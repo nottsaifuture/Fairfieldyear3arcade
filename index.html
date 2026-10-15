@@ -189,7 +189,7 @@
 
   <main>
     <section class="games" aria-label="Games">
-      <a class="card hunt" id="huntCard" href="word-hunt.html?v=20261005">
+      <a class="card hunt" id="huntCard" href="word-hunt.html?v=20261012">
         <div class="art" aria-hidden="true">
           <div class="word-grid">
             <span>E</span><span>X</span><span>A</span><span>M</span><span>Q</span><span>L</span>
@@ -206,7 +206,7 @@
         </div>
       </a>
 
-      <a class="card cross" id="crossCard" href="word-cross.html?v=20261005">
+      <a class="card cross" id="crossCard" href="word-cross.html?v=20261012">
         <div class="art" aria-hidden="true">
           <div class="cross-grid">
             <span>E</span><span>X</span><span>A</span><span>M</span><span>P</span><span>L</span><span>E</span>
@@ -290,13 +290,17 @@
   var SB_URL='https://wpohvsjkrskhlrayaubp.supabase.co';
   var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indwb2h2c2prcnNraGxyYXlhdWJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMDEzOTcsImV4cCI6MjA5Njg3NzM5N30.Xi07ayGB5CykR-_7QX-b8UsUmMmTbGIlYpctXYgW9JI';
   var FN=SB_URL+'/functions/v1/';
+  var week7Start=new Date('2026-10-12T00:00:00');
+  var isWeek7=new Date()>=week7Start;
   var week6Start=new Date('2026-10-05T00:00:00');
   var isWeek6=new Date()>=week6Start;
   var week5Start=new Date('2026-09-28T00:00:00');
   var isWeek5=new Date()>=week5Start;
   var week4Start=new Date('2026-09-21T00:00:00');
   var isWeek4=new Date()>=week4Start;
-  var words=isWeek6
+  var words=isWeek7
+    ? ['eight','weigh','weight','height','sleigh','sleight','eighty','eighth','straight','neighbour']
+    : isWeek6
     ? ['cough','bought','rough','through','tough','thought','although','brought','enough','thorough']
     : isWeek5
       ? ['when','what','where','why','white','while','which','whinge','whisker','whisper']
@@ -332,7 +336,7 @@
     return d.player;
   }
   function renderWords(){
-    var activeWeek=isWeek6?'Week 6':isWeek5?'Week 5':isWeek4?'Week 4':'Week 3';
+    var activeWeek=isWeek7?'Week 7':isWeek6?'Week 6':isWeek5?'Week 5':isWeek4?'Week 4':'Week 3';
     $('weekSub').textContent=activeWeek+' spelling practice with two quick games.';
     $('weekWordsTitle').textContent=activeWeek+' Words';
     $('wordList').innerHTML=words.map(function(w){return '<span>'+esc(w)+'</span>';}).join('');
